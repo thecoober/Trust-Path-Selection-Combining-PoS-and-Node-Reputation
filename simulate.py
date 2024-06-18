@@ -23,21 +23,22 @@ def simulate(graph, paths, message, attacked_nodes=None):
 
     for i in range(len(paths)):
         # 签名并传递消息
+        current_message = message
         is_valid = True
         for node in paths[i][:-1]:
             if node in attacked_nodes:
-                message = b"error message"
-                signature = sign_message(rsa.generate_private_key(public_exponent=65537, key_size=2048), message)
+                current_message = b"error message"
+                signature = sign_message(rsa.generate_private_key(public_exponent=65537, key_size=2048), current_message)
             else:
-                signature = sign_message(keys[node], message)
+                signature = sign_message(keys[node], current_message)
 
             # 下一个节点验证签名
-            if not verify_signature(public_keys[node], message, signature):
+            if not verify_signature(public_keys[node], current_message, signature):
                 is_valid = False
                 break
 
         if is_valid:
-            print("received message： ", message)
+            print("received message： ", current_message)
             valid_path = i
             valid_flag = 1
             break

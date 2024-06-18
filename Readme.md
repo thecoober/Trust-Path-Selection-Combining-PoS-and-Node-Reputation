@@ -1,34 +1,44 @@
-# 结合PoS和节点声誉的可信任传输路径选择
+# Trust Path Selection Combining PoS and Node Reputation
 
-这个项目模拟了区块链中的节点声誉和 PoS 机制，结合这两个机制来选择从节点 A 到节点 B 最优的传输路径，
-并通过签名算法保证传输路径的安全性。在这个项目中，我们假设有 19 个节点，节点的各项属性和边记录在 `property.py` 文件中。
-通过 PoS 对节点进行初次筛选，然后选择总体声誉值最高的路径作为最优传输路径。在传输数据的过程中对数据进行签名，以保证数据的安全性。
-若在验证签名过程中出现错误，则说明数据被篡改，因此依据总体声誉值依次从高到低选择其余路径进行传输。
+This project simulates node reputation and PoS (Proof of Stake) mechanisms within a blockchain, combining these 
+mechanisms to select the optimal transmission path from node A to node B. The security of the transmission path is 
+ensured through signature algorithms. In this project, we assume there are 19 nodes, with their properties and edges 
+recorded in the `property.py` file. Nodes are initially screened using PoS, and then the path with the highest overall 
+reputation value is selected as the optimal transmission path. During data transmission, data is signed to ensure its 
+security. If an error is detected during signature verification, it indicates that the data has been tampered with, 
+and other paths are chosen for transmission based on their overall reputation values in descending order.
 
-## 需求
-本项目在 Python 3.11.9 环境下运行，需要以下库的支持：
+## Requirements
+
+This project runs in a Python 3.11.9 environment and requires the following libraries:
 ```
 matplotlib==3.9.0
 networkx==3.3
 cryptography==42.0.8
 ```
-通过运行以下命令安装所需库：
+Install the required libraries using the following command:
 ```
 pip install -r requirements.txt
 ```
-## 使用
-运行 `main.py` 文件，即可开始模拟信息传递过程。其中，`createGraph`函数通过读取`property.py` 文件的数据创建初始图，
-并通过`PoS_verify`函数对初始图进行权益证明，将代币数×持有时间小于`threshold`的节点删除。
+## Usage
+Run the `main.py` file to start simulating the information transmission process. The `createGraph` function creates the 
+initial graph by reading data from the `property.py` file and performs PoS verification via the `PoS_verify` function, 
+removing nodes with coin × coin holding time less than the `threshold`.
 
-`find_best_path`函数设定信息发出节点和信息接收节点，通过计算所有可行途径的总体声誉值，按总体声誉值高低对所有可行路径从高到低排序。
+The `find_best_path` function sets the sender and receiver nodes, calculates the overall reputation values of all feasible 
+paths, and sorts these paths from highest to lowest reputation.
 
-最后 `simulate` 函数模拟信息传递过程，要传递的信息在参数`message`中进行设定，恶意节点通过`attacked_nodes`参数进行设置，默认不存在恶意节点。
-`simulate` 函数传递过程中每个节点都对数据进行签名，签名算法为`RSA`，若签名验证失败，则说明数据被篡改，选择其他路径进行传输。
+Finally, the `simulate` function simulates the information transmission process. The message to be transmitted is set in 
+the `message` parameter, and malicious nodes can be set through the `attacked_nodes` parameter (default is no malicious 
+nodes). During transmission, each node signs the data using the `RSA` algorithm. If signature verification fails, 
+indicates that the data has been tampered with, and an alternative path is chosen for transmission.
 
-恶意节点的行为被设定为篡改数据，所有途径恶意节点的信息都被篡改为 `error message`。
+Malicious nodes are programmed to tamper with data, changing it to `error message`.
 
-## 结果
-直接运行 `main.py` 文件，可以得到如下结果：
+
+## Results
+
+By directly running the `main.py` file, you can get the following results:
 ```
 ==========================================================================
 Create graph
@@ -50,22 +60,38 @@ The top eight paths are:
 ['A', 'B', 'D', 'F', 'H', 'K']           total reputation:    0.72      
 ==========================================================================
 Simulate message transfer process
-message decrypt:  b'Important message'
+received message：  b'Important message'
 optimal path:  ['A', 'C', 'D', 'F', 'G', 'I', 'K']
 ==========================================================================
 ```
-通过`find_sorted_paths`函数修改信息发送方和接收方，通过`simulate`函数修改被攻击节点，在现有文件中，选择节点`A`作为信息发送方，
-节点`K`作为信息接收方，其中`S`和`Q`节点被攻击，为恶意节点。直接生成的 graph 如下图所示。
+Use the `find_sorted_paths` function to modify the sender and receiver nodes and the `simulate` function to modify the 
+attacked nodes. In the current file, node `A` is chosen as the sender and node `K` as the receiver, with nodes `S` and `Q` 
+being attacked and acting as malicious nodes. The initially generated graph is shown below.
+
 <div align=center>
 <img  src="figure/Initial graph.png" width="50%">
 </div>
 
-经过 PoS 机制筛选后，删除了节点 `O`, `Q`, `J`，剩余节点如下图所示。
+After PoS verification, nodes `O`, `Q`, and `J` are removed, with the remaining nodes shown below.
+
 <div align=center>
 <img  src="figure/PoS verified.png" width="50%">
 </div>
 
-最终筛选出的最优路径为 `['A', 'C', 'D', 'F', 'G', 'I', 'K']`，如下图所示。
+The final selected optimal path is `['A', 'C', 'D', 'F', 'G', 'I', 'K']`, as shown below.
+
 <div align=center>
 <img  src="figure/optimal path.png" width="50%">
 </div>
+
+## Conclusion
+
+In practice, this project represents a preliminary attempt to integrate multiple mechanisms, with each module having 
+some issues. In actual use, more in-depth methods can replace the modules in this project. For example, a Byzantine 
+fault-tolerant PoS mechanism can replace the simple asset proof method used in this project. More factors can be 
+considered in the reputation calculation phase to comprehensively evaluate node reputation. Additionally, to ensure 
+that transmitted information is only visible to the sender and receiver nodes and not to the relay nodes, symmetric 
+encryption algorithms like "AES" can be used before sending the information. The encryption and decryption keys can be 
+agreed upon by the sender and receiver nodes, further ensuring the confidentiality and security of information 
+transmission.
+

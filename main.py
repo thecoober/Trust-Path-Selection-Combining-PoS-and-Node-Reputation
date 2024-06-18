@@ -25,11 +25,11 @@ def main():
     print("Simulate message transfer process")
     # 模拟传递过程
     # 如果需要添加攻击节点，在attack_nodes中添加节点名称即可
-    flag, path = simulate(graph, paths, b"Important message", ['H'])
+    flag, path = simulate(graph, paths, b"Important message", ['H', 'G', 'L'])
 
     # 打印结果
     if flag == 0:
-        print("No valid path found")
+        print("ERROR: No valid path found")
         show_graph(graph, title="No valid path found")
     else:
         print("optimal path: ", path)
